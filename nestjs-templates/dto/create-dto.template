@@ -1,0 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsNotEmpty, IsString,IsUrl } from 'class-validator';
+export class Create{{tableNameUpper}}Dto {
+  {{fieldDto}}
+}

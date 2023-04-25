@@ -1,0 +1,1 @@
+CREATE DATABASE honey; USE honey; CREATE TABLE student ( student_id INT UNSIGNED NOT NULL AUTO_INCREMENT, student_name VARCHAR(20) NOT NULL, student_age TINYINT UNSIGNED NOT NULL DEFAULT 18, student_gender ENUM('male', 'female') NOT NULL DEFAULT 'male', student_address VARCHAR(50) NOT NULL, PRIMARY KEY (student_id) );

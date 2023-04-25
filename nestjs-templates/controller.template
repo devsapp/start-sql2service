@@ -1,0 +1,82 @@
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  Get,
+  Delete,
+  Put,
+  Param,
+  Query,
+  Logger,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Create{{tableNameUpper}}Dto } from './dto/create-{{tableName}}.dto';
+import { {{tableNameUpper}}Service } from './{{tableName}}.service';
+import { {{tableNameUpper}} } from './{{tableName}}.entity';
+import { Remove{{tableNameUpper}}Dto } from './dto/remove-{{tableName}}.dto';
+import { Retrieve{{tableNameUpper}}Dto } from './dto/retrieve-{{tableName}}.dto';
+import { Update{{tableNameUpper}}Dto } from './dto/update-{{tableName}}.dto';
+import { Find{{tableNameUpper}}Dto } from './dto/find-{{tableName}}.dto';
+import { JwtAuthGuardUser } from 'src/auth/guards/jwt-auth.guard';
+
+import { Log } from 'src/libs/utils';
+
+@ApiTags('{{tableNameUpper}}')
+@Controller('api/{{tableName}}')
+export class {{tableNameUpper}}Controller {
+  constructor(private readonly {{tableName}}Service: {{tableNameUpper}}Service) {}
+
+  // 增加
+  @Post()
+  @ApiOperation({ summary: '增加' })
+  async create(@Body() create{{tableNameUpper}}Dto: Create{{tableNameUpper}}Dto): Promise<{{tableNameUpper}}> {
+    return await this.{{tableName}}Service.create(create{{tableNameUpper}}Dto);
+  }
+
+  // 删除
+  @Delete()
+  @ApiOperation({ summary: '删除' })
+  async remove(
+    @Body() remove{{tableNameUpper}}Dto: Remove{{tableNameUpper}}Dto,
+    @Request() req,
+  ): Promise<any> {
+    Log({ req });
+    return await this.{{tableName}}Service.delete(remove{{tableNameUpper}}Dto);
+  }
+
+  // 更新
+  @Put(':id')
+  @ApiOperation({ summary: '更新' })
+  async update(
+    @Param() params: Retrieve{{tableNameUpper}}Dto,
+    @Body() update{{tableNameUpper}}Dto: Update{{tableNameUpper}}Dto,
+  ): Promise<any> {
+    return await this.{{tableName}}Service.update({
+      id: params.{{primaryKey}},
+      update{{tableNameUpper}}Dto,
+    });
+  }
+
+  // 列表
+  @Get()
+  @ApiOperation({ summary: '列表' })
+  async findAll(@Query() query: Find{{tableNameUpper}}Dto): Promise<{{tableNameUpper}}> {
+    return await this.{{tableName}}Service.findAll(query);
+  }
+
+  // 根据 id 查找
+  @Get(':id')
+  @ApiOperation({ summary: '根据 id 查找' })
+  async findOneById(@Param() params: Retrieve{{tableNameUpper}}Dto): Promise<any> {
+    return await this.{{tableName}}Service.findOneById(params.{{primaryKey}});
+  }
+
+  // 数量
+  @Get('list/count')
+  @ApiOperation({ summary: '用户数量' })
+  async getCount() {
+    return await this.{{tableName}}Service.getCount();
+  }
+}

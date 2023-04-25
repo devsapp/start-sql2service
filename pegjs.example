@@ -1,0 +1,68 @@
+
+Block = blocks:ModelBlock* {
+    return {
+        type: 'yiderschema',
+        version: '1.0.0',
+        blocks
+    }
+} 
+ModelBlock =
+    _ 'model'
+    _ name:Identifier
+    _ '{' field:Field* '}'
+    _ {
+        return {
+            name,
+            field
+        }
+    }
+
+Field =
+    _ isPrimary:Primary?
+    _ isAutoIncrement:AutoIncrement?
+    _ log:Log?
+    _ cloumn:Identifier optioanl:'?'?
+    _ isUnsigned:Unsigned?
+    _ type:DataType
+    _ typeLength:DataTypeLength?
+    _ defaultValue:DefaultValue?
+    _ comment:Comment?
+    _ {
+        return {
+            isPrimary: isPrimary ? true : false,
+            isAutoIncrement: isAutoIncrement ? true : false,
+            isUnsigned: isUnsigned ? true : false,
+            log,
+            type,
+            typeLength,
+            defaultValue,
+            comment,
+            optioanl: optioanl ? true : false,
+            cloumn
+        }
+    }
+Primary = '@primary'
+AutoIncrement = '@autoIncrement'
+Unsigned = "unsigned"
+Identifier = $([a-z_])+
+Log = '@log('logColumn:$([a-z_])*')' {
+    return logColumn
+}
+DataType = 'String' / 'Int' / 'BigInt' / 'DateTime' / 'Timestamp'
+DataTypeLength = '('length:$(Integer)*')' {
+    return +length
+}
+
+Integer = [0-9]
+DefaultValue = '=' _ value:$([^\r\n\t #])* {
+    return value
+}
+Comment = '#'comment:$([^\r\n\t])* {
+    return comment
+}
+
+
+
+
+_ "whitespace"
+= [ \t\n\r]*

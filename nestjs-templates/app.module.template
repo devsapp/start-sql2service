@@ -1,0 +1,56 @@
+import { join } from 'path';
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Log4jsModule } from './libs/log4js';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { UploadModule } from './upload/upload.module';
+import { AuthModule } from './auth/auth.module';
+
+{{customerModulesImport}}
+
+
+
+
+const ENV = process.env.NODE_ENV;
+const dbInfo = {
+  host: '127.0.0.1',
+  port: 3306,
+  username: 'root',
+  password: 'Abc12345',
+};
+if (ENV === 'production') {
+  dbInfo.host = process.env.dbHost || '';
+  dbInfo.port = parseInt(process.env.dbPort) || 3306;
+  dbInfo.username = process.env.dbUserName || 'root';
+  dbInfo.password = process.env.dbPassword || '';
+}
+const { host, port, username, password } = dbInfo;
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host,
+      port,
+      username,
+      password,
+      database: '{{dbName}}',
+      entities: [],
+      autoLoadEntities: true,
+      synchronize: false,
+    }),
+    AuthModule,
+    UploadModule,
+    {{customerModulesDefine}}
+    ServeStaticModule.forRoot({
+      rootPath: process.env.staticPath || join(__dirname, '..', 'public'),
+    }),
+    Log4jsModule.forRoot(),
+
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}

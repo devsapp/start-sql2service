@@ -1,0 +1,81 @@
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Create{{tableNameUpper}}Dto } from './dto/create-{{tableName}}.dto';
+import { {{tableNameUpper}} } from './{{tableName}}.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Like, Raw, In } from 'typeorm';
+import { Remove{{tableNameUpper}}Dto } from './dto/remove-{{tableName}}.dto';
+
+@Injectable()
+export class {{tableNameUpper}}Service {
+  constructor(
+    @InjectRepository({{tableNameUpper}})
+    private {{tableName}}Repository: Repository<{{tableNameUpper}}>,
+  ) { }
+
+  // 增加
+  async create(create{{tableNameUpper}}Dto: Create{{tableNameUpper}}Dto): Promise<any> {
+  
+    return await this.{{tableName}}Repository.save(create{{tableNameUpper}}Dto);
+  }
+
+  // 删除
+  async delete(remove{{tableNameUpper}}Dto: Remove{{tableNameUpper}}Dto): Promise<any> {
+    const { {{primaryKey}}s } = remove{{tableNameUpper}}Dto;
+    return this.{{tableName}}Repository.delete({{primaryKey}}s);
+  }
+
+  // 更新
+  async update(update{{tableNameUpper}}Data): Promise<any> {
+    const { {{primaryKey}}, update{{tableNameUpper}}Dto } = update{{tableNameUpper}}Data;
+    return await this.{{tableName}}Repository.update({{primaryKey}}, update{{tableNameUpper}}Dto);
+  }
+
+  // 列表
+  async findAll(query: any): Promise<any> {
+    const { keyword, category, page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
+
+    let params = {
+      skip,
+      take: limit,
+    };
+
+    let whereParams = {};
+
+    if (keyword) {
+      whereParams = Object.assign(whereParams, {
+        name: Like(`%${keyword}%`),
+      });
+    }
+
+    if (category) {
+      whereParams = Object.assign(whereParams, {
+        category: In(category),
+      });
+    }
+
+    params = Object.assign(
+      params,
+      {
+        where: whereParams,
+      },
+    );
+
+    const [data, total] = await this.{{tableName}}Repository.findAndCount(params);
+
+    return {
+      total,
+      data,
+    };
+  }
+
+  // 根据ID查找
+  async findOneById({{primaryKey}}: {{primaryKeyType}}): Promise<any> {
+    return this.{{tableName}}Repository.findOneBy({ {{primaryKey}} });
+  }
+
+  // 数量
+  async getCount() {
+    return await this.{{tableName}}Repository.count();
+  }
+}

@@ -1,0 +1,6 @@
+import { Column, Entity, PrimaryGeneratedColumn, PrimaryColumn } from 'typeorm';
+
+@Entity('{{tableName}}')
+export class {{tableNameUpper}} {
+  {{fieldDetail}}
+}

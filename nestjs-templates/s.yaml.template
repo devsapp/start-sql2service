@@ -1,0 +1,65 @@
+edition: 1.0.0
+name: {{dbName}}
+access: default
+vars:
+  region: cn-hangzhou
+  fc: 
+    serviceName: '{{dbName}}'
+    functionName: '{{dbName}}'
+    triggers: 'modern-web-api'
+    staticPath: '/mnt/auto/{{dbName}}/public'
+    logPath: '/mnt/auto/{{dbName}}/logs/application.log'
+services:
+  api-server:
+    component: fc
+    # actions:
+    #   post-deploy: # 在deploy之后运行
+    #   - plugin: keep-warm-fc
+    #     args:
+    #       url: http://modern-app-new.modern-app-new.xxxxxx.cn-hangzhou.fc.devsapp.net
+    actions:
+      post-deploy:
+        - component: fc nas upload -r ./server/logs /mnt/auto/modern-app-new
+        - component: fc nas upload -r ./server/public /mnt/auto/modern-app-new
+    props:
+      region: ${vars.region}
+      service:
+        name: ${vars.fc.serviceName}
+        description: Aliyun RAM Role
+        internetAccess: true
+        nasConfig: auto
+      function:
+        name: ${vars.fc.functionName}
+        description: Native recording handler
+        timeout: 3000
+        memorySize: 1024
+        runtime: custom
+        environmentVariables:
+          NODE_ENV: production
+          dbHost: ${env.dbHost}
+          dbPort: ${env.dbPort}
+          dbPassword: ${env.dbPassword}
+          dbUserName: ${env.dbUserName}
+          staticPath: ${vars.fc.staticPath}
+          logPath: ${vars.fc.logPath}
+        codeUri: .
+        caPort: 3000
+      triggers:
+        - name: ${vars.fc.triggers}
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - HEAD
+              - OPTIONS
+      customDomains:
+        - domainName: auto
+          protocol: HTTP
+          routeConfigs:
+            - path: /*
+              serviceName: ${vars.fc.serviceName}
+              functionName:  ${vars.fc.functionName}
